@@ -2,12 +2,13 @@
 import { onMounted, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { reqBannerList } from "@/api/index";
+import { reqBannerList } from "@/api/banner";
 import printJS from "print-js";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { Picture, Search } from "@element-plus/icons-vue";
-import type { ResponseData, PaginationData, BannerData } from "@/types";
+import type { ResponseData, PaginationData } from "@/types/common";
+import type { BannerData } from "@/types/banner";
 
 const router = useRouter();
 

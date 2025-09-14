@@ -3,22 +3,23 @@ import { useRouter } from "vue-router";
 import { ref, reactive, onMounted } from "vue";
 import { User, Lock, Phone, EditPen } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
-import { reqUserLoginSubmit, reqUserLoginVerify } from "@/api/index";
+import { reqUserLoginSubmit, reqUserLoginVerify } from "@/api/user";
 import type { FormInstance, FormRules } from "element-plus";
-import type { ResponseData, userLoginData, UserData } from "@/types";
+import type { ResponseData } from "@/types/common";
+import type { UserLoginData, UserData } from "@/types/user";
 
 const router = useRouter();
 const loading = ref<boolean>(true);
 const tabsCurrent = ref<number>(1);
 const autoLogin = ref<boolean>(false);
 const formRef = ref<FormInstance>();
-const formData = reactive<userLoginData>({
+const formData = reactive<UserLoginData>({
   username: "",
   password: "",
   mobile: "",
   code: "",
 });
-const formRule = reactive<FormRules<userLoginData>>({
+const formRule = reactive<FormRules<UserLoginData>>({
   username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
   password: [{ required: true, message: "请输入密码", trigger: "blur" }],
   mobile: [{ required: true, message: "请输入手机号", trigger: "blur" }],

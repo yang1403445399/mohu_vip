@@ -21,14 +21,26 @@
           class="flex hover:text-[var(--el-color-primary)] cursor-pointer mx-2"
         >
           <el-tooltip content="删除目录">
-            <el-button :icon="FolderRemove" size="small" type="danger" plain @click="onColumnDelete()" />
+            <el-button
+              :icon="FolderRemove"
+              size="small"
+              type="danger"
+              plain
+              @click="onColumnDelete()"
+            />
           </el-tooltip>
         </div>
         <div
           class="flex hover:text-[var(--el-color-primary)] cursor-pointer mx-2"
         >
           <el-tooltip content="编辑目录">
-            <el-button :icon="EditPen" size="small" type="primary" plain @click="onColumnEdit()" />
+            <el-button
+              :icon="EditPen"
+              size="small"
+              type="primary"
+              plain
+              @click="onColumnEdit()"
+            />
           </el-tooltip>
         </div>
       </div>
@@ -162,12 +174,7 @@
     :title="columnData.dialog.title"
     :width="500"
   >
-    <el-form
-      ref="formRef"
-      :model="formData"
-      :rules="formRule"
-      class="p-4"
-    >
+    <el-form ref="formRef" :model="formData" :rules="formRule" class="p-4">
       <el-form-item prop="name">
         <el-input v-model="formData.name" placeholder="请输入栏目名称" />
       </el-form-item>
@@ -229,13 +236,9 @@ import {
   reqImageColumnList,
   reqImageColumnSubmit,
   reqImageColumnDelete,
-} from "@/api";
-import type {
-  ResponseData,
-  PaginationData,
-  ImageData,
-  ImageColumnData,
-} from "@/types";
+} from "@/api/image";
+import type { ResponseData, PaginationData } from "@/types/common";
+import type { ImageData, ImageColumnData } from "@/types/image";
 import type {
   UploadFile,
   UploadRawFile,
@@ -326,9 +329,11 @@ const onColumnDelete = () => {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning",
-  }).then(async() => {
+  }).then(async () => {
     try {
-      const response: ResponseData = await reqImageColumnDelete([columnData.current]);
+      const response: ResponseData = await reqImageColumnDelete([
+        columnData.current,
+      ]);
       if (response.code === 200) {
         ElMessage({
           message: response.msg,
@@ -345,8 +350,8 @@ const onColumnDelete = () => {
         type: "error",
       });
     }
-  })
-}
+  });
+};
 
 const onColumnSubmit = async (formEl: FormInstance | undefined) => {
   if (!formEl) return;
@@ -354,9 +359,7 @@ const onColumnSubmit = async (formEl: FormInstance | undefined) => {
   await formEl.validate(async (valid) => {
     if (valid) {
       try {
-        const response: ResponseData = await reqImageColumnSubmit(
-          formData
-        );
+        const response: ResponseData = await reqImageColumnSubmit(formData);
         if (response.code === 200) {
           ElMessage({
             message: response.msg,
@@ -401,7 +404,7 @@ const onImageSizeChange = async () => {
   imageData.checked.list = [];
   imageData.data.current = 1;
   await getImageList();
-}
+};
 
 const onImageCheckedChange = () => {
   imageData.checked.list = imageData.checked.all
@@ -423,7 +426,9 @@ const onColumnEdit = () => {
     return;
   }
   formData.id = columnData.current;
-  formData.name = columnData.data.find((item) => item.id === columnData.current)!.name;
+  formData.name = columnData.data.find(
+    (item) => item.id === columnData.current
+  )!.name;
   columnData.dialog.show = true;
 };
 

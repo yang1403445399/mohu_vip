@@ -7,7 +7,7 @@ import * as echarts from "echarts";
 import { useDark } from "@vueuse/core";
 import { onMounted, onUnmounted, ref, watch } from "vue";
 import { debounce } from "lodash";
-import type { BrowseRegionData } from "@/types";
+import type { BrowseRegionData } from "@/types/browse";
 
 const props = defineProps({
   className: {

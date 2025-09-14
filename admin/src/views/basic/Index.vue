@@ -2,10 +2,11 @@
 import inputImageSelect from "@/components/InputImageSelect.vue";
 import { ref, reactive, onMounted } from "vue";
 import { ElMessage } from "element-plus";
-import type { FormInstance, FormRules } from "element-plus";
-import type { ResponseData, BasicFormatData, BasicData } from "@/types";
-import { reqBasicInfo, reqBasicSubmit } from "@/api";
+import { reqBasicInfo, reqBasicSubmit } from "@/api/basic";
 import { entries } from "lodash";
+import type { FormInstance, FormRules } from "element-plus";
+import type { ResponseData } from "@/types/common";
+import type { BasicFormatData, BasicData } from "@/types/basic";
 
 const loading = ref<boolean>(true);
 const formRef = ref<FormInstance>();

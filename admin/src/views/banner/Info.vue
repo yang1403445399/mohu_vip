@@ -4,8 +4,13 @@ import { ref, reactive, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
 import type { FormInstance, FormRules } from "element-plus";
-import { reqBannerTypeList, reqBannerSubmit, reqBannerInfo } from "@/api";
-import type { ResponseData, BannerData, BannerTypeData } from "@/types";
+import {
+  reqBannerTypeList,
+  reqBannerSubmit,
+  reqBannerInfo,
+} from "@/api/banner";
+import type { ResponseData } from "@/types/common";
+import type { BannerData, BannerTypeData } from "@/types/banner";
 
 const router = useRouter();
 const route = useRoute();

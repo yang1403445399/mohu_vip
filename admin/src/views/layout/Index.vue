@@ -3,8 +3,9 @@ import { ref, watch, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useDark, useToggle } from "@vueuse/core";
 import { Moon, Sunny } from "@element-plus/icons-vue";
-import { reqMenuList } from "@/api";
-import type { ResponseData, MenuData, MenuTreeData } from "@/types";
+import { reqMenuList } from "@/api/menu";
+import type { ResponseData } from "@/types/common";
+import type { MenuData, MenuTreeData } from "@/types/menu";
 
 const route = useRoute();
 const isDark = useDark();
@@ -83,7 +84,7 @@ const getMenuList = async () => {
 };
 
 const getRealPath = () => {
-  return route.path.split('/').slice(0, -1).join('/');
+  return route.path.split("/").slice(0, -1).join("/");
 };
 
 onMounted(async () => {

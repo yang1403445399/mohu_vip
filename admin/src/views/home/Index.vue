@@ -9,26 +9,21 @@ import { cloneDeep } from "lodash";
 import printJS from "print-js";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import {
-  reqBrowseCount,
-  reqAmapJson,
-  reqAreaJson,
-  reqBrowseRegion,
-  reqArticleCount,
-  reqLogsList,
-} from "@/api/index";
+import { reqAmapJson, reqAreaJson } from "@/api/common";
+import { reqBrowseCount, reqBrowseRegion } from "@/api/browse";
+import { reqArticleCount } from "@/api/article";
+import { reqLogList } from "@/api/log";
 import type {
   GeoFeatureData,
   GeoJSON,
   AmapJSON,
   ResponseData,
   PaginationData,
-  BrowseCountData,
   TimeRangeParams,
-  BrowseRegionData,
-  ArticleCountData,
-  LogData,
-} from "@/types";
+} from "@/types/common";
+import type { LogData } from "@/types/log";
+import type { BrowseCountData, BrowseRegionData } from "@/types/browse";
+import type { ArticleCountData } from "@/types/article";
 
 const browseCountData = reactive({
   load: true,
@@ -246,13 +241,11 @@ const onArticleTimeChange = async (value: string[]) => {
 
 const getLogList = async (params?: TimeRangeParams) => {
   try {
-    const response: ResponseData<PaginationData<LogData[]>> = await reqLogsList(
-      {
-        size: logListData.data.size,
-        current: logListData.data.current,
-        ...params,
-      }
-    );
+    const response: ResponseData<PaginationData<LogData[]>> = await reqLogList({
+      size: logListData.data.size,
+      current: logListData.data.current,
+      ...params,
+    });
 
     if (response.code === 200) {
       logListData.data = response.data!;
