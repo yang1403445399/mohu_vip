@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+html {
+    --grey-bg-color: #f9fafb;
+    --card-bg-color: #ffffff;
+}
+
+html.dark {
+  --grey-bg-color: #000000;
+  --card-bg-color: #000000;
+}

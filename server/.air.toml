@@ -1,0 +1,51 @@
+# .air.toml
+# 使用 air-verse/air 版本的配置
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  # air-verse/air 支持的构建命令
+  cmd = "go build -o ./tmp/main.exe main.go"
+  bin = "./tmp/main.exe"
+  # 监视的文件扩展名
+  include_ext = ["go", "tpl", "tmpl", "html", "css", "js"]
+  # 排除的目录
+  exclude_dir = ["tmp", "vendor", "node_modules", "uploads"]
+  # 排除的文件
+  exclude_file = []
+  # 排除的正则表达式
+  exclude_regex = ["_test\.go"]
+  # 是否排除未更改的文件
+  exclude_unchanged = false
+  # 是否跟随符号链接
+  follow_symlink = false
+  # 文件变更后重新构建的延迟（毫秒）
+  delay = 1000
+  # 构建错误时是否停止
+  stop_on_error = true
+  # 是否发送中断信号
+  send_interrupt = true
+  # 杀死进程的延迟（毫秒）
+  kill_delay = 500
+
+[log]
+  # 日志级别
+  level = "info"
+  # 时间格式
+  time_format = "2006-01-02 15:04:05"
+  # 是否只显示主进程日志
+  main_only = false
+  # 是否使用 ANSI 颜色
+  ansi = true
+
+[color]
+  # 不同部分的颜色配置
+  main = "magenta"
+  build = "yellow"
+  runner = "green"
+  watcher = "cyan"
+  app = "blue"
+
+[misc]
+  # 退出时是否清理临时目录
+  clean_on_exit = true
