@@ -153,7 +153,7 @@ func (con CommonController) ImageDelete(c *fiber.Ctx) error {
 		}
 	}
 
-	if err := config.DB.Model(&model.Image{}).Delete(&model.Image{}, imageBody).Error; err != nil {
+	if err := config.DB.Delete(&model.Image{}, imageBody).Error; err != nil {
 		return con.ErrorResponse(c, err.Error())
 	}
 

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import inputImageSelect from "@/components/InputImageSelect.vue";
+import imageSelect from "@/components/ImageSelect.vue";
 import { ref, reactive, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
 import type { FormInstance, FormRules } from "element-plus";
+import { trimParser } from "@/utils";
 import {
   reqBannerTypeList,
   reqBannerSubmit,
@@ -16,6 +17,7 @@ const router = useRouter();
 const route = useRoute();
 const loading = ref<boolean>(true);
 const typeList = ref<BannerTypeData[]>([]);
+const pageName = ref<string>("新增轮播图");
 const formRef = ref<FormInstance>();
 const formData = reactive<BannerData>({
   type_id: 1,
@@ -28,7 +30,7 @@ const formRule = reactive<FormRules<BannerData>>({
   src: [{ required: true, message: "请上传图片", trigger: "blur" }],
 });
 
-const onReturnList = () => {
+const goBack = () => {
   router.back();
 };
 
@@ -61,7 +63,7 @@ const onBannerSubmit = async (formEl: FormInstance | undefined) => {
           message: "提交成功",
           type: "success",
           onClose: () => {
-            onReturnList();
+            goBack();
           },
         });
       }
@@ -74,10 +76,11 @@ const onBannerSubmit = async (formEl: FormInstance | undefined) => {
   }
 };
 
-const loadPageData = async () => {
+const onInit = async () => {
   try {
     await getBannerTypeList();
     if (route.query.id) {
+      pageName.value = "编辑轮播图";
       await getBannerInfo();
     }
   } catch (error: any) {
@@ -91,7 +94,7 @@ const loadPageData = async () => {
 };
 
 onMounted(async () => {
-  await loadPageData();
+  await onInit();
 });
 </script>
 
@@ -101,52 +104,66 @@ onMounted(async () => {
   >
     <div class="flex items-center justify-between p-4">
       <div class="text-base text-[var(--el-text-color-primary)] leading-none">
-        新增轮播图
+        {{ pageName }}
       </div>
       <div class="flex">
-        <el-link class="leading-none" @click="onReturnList">返回列表</el-link>
+        <el-link class="leading-none" @click="goBack">返回列表</el-link>
       </div>
     </div>
     <div class="p-4 border-t border-[var(--el-border-color)]">
       <el-form
-        class="grid grid-cols-2 gap-4"
+        class="grid grid-cols-3 gap-8 items-start"
         ref="formRef"
         label-position="top"
         :model="formData"
         :rules="formRule"
       >
-        <el-form-item label="名称" prop="name">
-          <el-input v-model="formData.name" placeholder="请输入名称" />
-        </el-form-item>
-        <el-form-item label="图片" prop="src">
-          <component
-            :is="inputImageSelect"
-            v-model="formData.src"
-            placeholder="请选择图片"
-          />
-        </el-form-item>
-        <el-form-item label="类型" prop="type_id">
-          <el-select v-model="formData.type_id" placeholder="请选择类型">
-            <el-option
-              v-for="value in typeList"
-              :key="value.id"
-              :label="value.name"
-              :value="value.id"
+        <div class="grid grid-cols-1 gap-4">
+          <el-form-item label="名称" prop="name">
+            <el-input
+              v-model="formData.name"
+              :formatter="trimParser"
+              placeholder="请输入名称"
             />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="链接" prop="url">
-          <el-input v-model="formData.url" placeholder="请输入链接" />
-        </el-form-item>
-        <el-form-item label="排序" prop="sort">
-          <el-input-number
-            class="w-full!"
-            v-model="formData.sort"
-            :min="0"
-            controls-position="right"
-            placeholder="请输入排序"
-          />
-        </el-form-item>
+          </el-form-item>
+          <el-form-item label="图片" prop="src">
+            <component
+              :is="imageSelect"
+              v-model="formData.src"
+              placeholder="请选择图片"
+            />
+          </el-form-item>
+        </div>
+        <div class="grid grid-cols-1 gap-4">
+          <el-form-item label="链接" prop="url">
+            <el-input
+              v-model="formData.url"
+              :formatter="trimParser"
+              placeholder="请输入链接"
+            />
+          </el-form-item>
+          <el-form-item label="排序" prop="sort">
+            <el-input-number
+              class="w-full!"
+              v-model="formData.sort"
+              :min="0"
+              controls-position="right"
+              placeholder="请输入排序"
+            />
+          </el-form-item>
+        </div>
+        <div class="grid grid-cols-1 gap-4">
+          <el-form-item label="类型" prop="type_id">
+            <el-select v-model="formData.type_id" placeholder="请选择类型">
+              <el-option
+                v-for="value in typeList"
+                :key="value.id"
+                :label="value.name"
+                :value="value.id"
+              />
+            </el-select>
+          </el-form-item>
+        </div>
       </el-form>
     </div>
     <div class="flex justify-end p-4 border-t border-[var(--el-border-color)]">

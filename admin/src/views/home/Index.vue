@@ -27,7 +27,7 @@ import type { ArticleCountData } from "@/types/article";
 
 const browseCountData = reactive({
   load: true,
-  list: [] as BrowseCountData[],
+  list: [{}, {}, {}, {}] as BrowseCountData[],
 });
 
 const browseRegionData = reactive({
@@ -45,7 +45,7 @@ const articleCountData = reactive({
   range: [] as string[],
 });
 
-const logListData = reactive({
+const logTableData = reactive({
   load: true,
   data: {
     current: 1,
@@ -58,39 +58,6 @@ const logListData = reactive({
     visible: false,
   },
 });
-
-const getBrowseTrend = (trend: string) => {
-  const isPositive = trend.includes("+");
-  const isNegative = trend.includes("-");
-
-  return {
-    type: isPositive ? "positive" : isNegative ? "negative" : "neutral",
-    color: isPositive ? "#67C23A" : isNegative ? "#F56C6C" : "#409EFF",
-    icon: isPositive ? TopRight : isNegative ? BottomRight : Minus,
-  };
-};
-
-const getBrowseCount = async () => {
-  try {
-    const response: ResponseData<BrowseCountData[]> = await reqBrowseCount();
-
-    if (response.code === 200) {
-      browseCountData.list = response.data!;
-      browseCountData.load = false;
-
-      setTimeout(async () => {
-        await getAmapJson("100000_full");
-        await getAreaJson();
-        await getBrowseRegion();
-      }, 1000);
-    }
-  } catch (error: any) {
-    ElMessage({
-      message: error.message,
-      type: "error",
-    });
-  }
-};
 
 const getAmapJson = async (code: string) => {
   try {
@@ -130,6 +97,39 @@ const getAreaJson = async () => {
           value: 0,
         };
       });
+    }
+  } catch (error: any) {
+    ElMessage({
+      message: error.message,
+      type: "error",
+    });
+  }
+};
+
+const getBrowseTrend = (trend: string) => {
+  const isPositive = trend.includes("+");
+  const isNegative = trend.includes("-");
+
+  return {
+    type: isPositive ? "positive" : isNegative ? "negative" : "neutral",
+    color: isPositive ? "#67C23A" : isNegative ? "#F56C6C" : "#409EFF",
+    icon: isPositive ? TopRight : isNegative ? BottomRight : Minus,
+  };
+};
+
+const getBrowseCount = async () => {
+  try {
+    const response: ResponseData<BrowseCountData[]> = await reqBrowseCount();
+
+    if (response.code === 200) {
+      browseCountData.list = response.data!;
+      browseCountData.load = false;
+
+      setTimeout(async () => {
+        await getAmapJson("100000_full");
+        await getAreaJson();
+        await getBrowseRegion();
+      }, 1000);
     }
   } catch (error: any) {
     ElMessage({
@@ -242,14 +242,14 @@ const onArticleTimeChange = async (value: string[]) => {
 const getLogList = async (params?: TimeRangeParams) => {
   try {
     const response: ResponseData<PaginationData<LogData[]>> = await reqLogList({
-      size: logListData.data.size,
-      current: logListData.data.current,
+      size: logTableData.data.size,
+      current: logTableData.data.current,
       ...params,
     });
 
     if (response.code === 200) {
-      logListData.data = response.data!;
-      logListData.load = false;
+      logTableData.data = response.data!;
+      logTableData.load = false;
     }
   } catch (error: any) {
     ElMessage({
@@ -260,23 +260,23 @@ const getLogList = async (params?: TimeRangeParams) => {
 };
 
 const onLogCurrentChange = async () => {
-  logListData.load = true;
+  logTableData.load = true;
   await getLogList();
 };
 
 const onLogSizeChange = async () => {
-  logListData.load = true;
-  logListData.data.current = 1;
+  logTableData.load = true;
+  logTableData.data.current = 1;
   await getLogList();
 };
 
 const onLogPopoverSwitch = () => {
-  logListData.time.visible = !logListData.time.visible;
+  logTableData.time.visible = !logTableData.time.visible;
 };
 
 const onLogTimeChange = async (value: string[]) => {
   try {
-    logListData.load = true;
+    logTableData.load = true;
     await getLogList({
       start_time: value[0],
       end_time: value[1],
@@ -289,7 +289,7 @@ const onLogTimeChange = async (value: string[]) => {
   }
 };
 
-const onLogTablePrint = () => {
+const onLogPrint = () => {
   printJS({
     printable: "print-table",
     type: "html",
@@ -301,9 +301,9 @@ const onLogTablePrint = () => {
   });
 };
 
-const onLogTableExport = () => {
+const onLogExport = () => {
   // 准备导出数据
-  const exportData = logListData.data.list.map((item) => ({
+  const exportData = logTableData.data.list.map((item) => ({
     ID: item.id,
     用户: item.user?.nickname || "",
     路由: item.route,
@@ -331,9 +331,13 @@ const onLogTableExport = () => {
   });
 };
 
-onMounted(async () => {
+const onInit = async () => {
   await getBrowseCount();
   await getLogList();
+};
+
+onMounted(async () => {
+  await onInit();
 });
 </script>
 
@@ -483,13 +487,13 @@ onMounted(async () => {
                 placement="left"
                 trigger="click"
                 :width="378"
-                :visible="logListData.time.visible"
+                :visible="logTableData.time.visible"
               >
                 <template #reference>
                   <el-icon><Search /></el-icon>
                 </template>
                 <el-date-picker
-                  v-model="logListData.time.range"
+                  v-model="logTableData.time.range"
                   unlink-panels
                   type="daterange"
                   range-separator="-"
@@ -503,12 +507,12 @@ onMounted(async () => {
             </div>
           </el-tooltip>
           <el-tooltip content="打印">
-            <div class="ml-4 flex cursor-pointer" @click="onLogTablePrint()">
+            <div class="ml-4 flex cursor-pointer" @click="onLogPrint()">
               <el-icon><Printer /></el-icon>
             </div>
           </el-tooltip>
           <el-tooltip content="下载">
-            <div class="ml-4 flex cursor-pointer" @click="onLogTableExport()">
+            <div class="ml-4 flex cursor-pointer" @click="onLogExport()">
               <el-icon><Download /></el-icon>
             </div>
           </el-tooltip>
@@ -518,8 +522,8 @@ onMounted(async () => {
         <el-table
           class="w-full"
           row-key="id"
-          v-loading="logListData.load"
-          :data="logListData.data.list"
+          v-loading="logTableData.load"
+          :data="logTableData.data.list"
         >
           <el-table-column prop="id" label="ID" width="80" />
           <el-table-column prop="user.nickname" label="用户" />
@@ -539,10 +543,10 @@ onMounted(async () => {
           small
           background
           layout="total, sizes, prev, pager, next, jumper"
-          v-model:current-page="logListData.data.current"
-          v-model:page-size="logListData.data.size"
+          v-model:current-page="logTableData.data.current"
+          v-model:page-size="logTableData.data.size"
           :page-sizes="[10, 20, 40, 80]"
-          :total="logListData.data.total"
+          :total="logTableData.data.total"
           @current-change="onLogCurrentChange"
           @size-change="onLogSizeChange"
         />

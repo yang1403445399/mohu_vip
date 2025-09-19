@@ -83,7 +83,7 @@ type Image struct {
 	Id       uint            `gorm:"primaryKey;autoIncrement" json:"id"`
 	UserId   uint            `gorm:"default:1;size:10" json:"user_id"`
 	ColumnId uint            `gorm:"size:10" json:"column_id"`
-	Name     string          `gorm:"size:255" json:"name"`
+	Name     string          `gorm:"size:50" json:"name"`
 	Url      string          `gorm:"size:255" json:"url"`
 	CreateAt carbon.DateTime `gorm:"type:datetime;default:CURRENT_TIMESTAMP" json:"create_at"`
 	UpdateAt carbon.DateTime `gorm:"type:datetime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" json:"update_at"`
@@ -93,7 +93,7 @@ type Image struct {
 type ImageColumn struct {
 	Id       uint            `gorm:"primaryKey;autoIncrement" json:"id"`
 	UserId   uint            `gorm:"default:1;size:10" json:"user_id"`
-	Name     string          `gorm:"size:255" json:"name"`
+	Name     string          `gorm:"size:50" json:"name"`
 	CreateAt carbon.DateTime `gorm:"type:datetime;default:CURRENT_TIMESTAMP" json:"create_at"`
 	UpdateAt carbon.DateTime `gorm:"type:datetime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" json:"update_at"`
 	State    uint            `gorm:"default:1" json:"state"`
@@ -103,7 +103,7 @@ type Banner struct {
 	Id       uint            `gorm:"primaryKey;autoIncrement" json:"id"`
 	TypeId   uint            `gorm:"default:1;size:10" json:"type_id"`
 	Type     BannerType      `gorm:"foreignKey:TypeId;references:Id" json:"type"`
-	Name     string          `gorm:"size:255" json:"name"`
+	Name     string          `gorm:"size:50" json:"name"`
 	Src      string          `gorm:"size:255" json:"src"`
 	Url      string          `gorm:"size:255" json:"url"`
 	Sort     uint            `gorm:"default:0" json:"sort"`
@@ -114,7 +114,23 @@ type Banner struct {
 
 type BannerType struct {
 	Id       uint            `gorm:"primaryKey;autoIncrement" json:"id"`
-	Name     string          `gorm:"size:255" json:"name"`
+	Name     string          `gorm:"size:50" json:"name"`
+	CreateAt carbon.DateTime `gorm:"type:datetime;default:CURRENT_TIMESTAMP" json:"create_at"`
+	UpdateAt carbon.DateTime `gorm:"type:datetime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" json:"update_at"`
+	State    uint            `gorm:"default:1" json:"state"`
+}
+
+type Column struct {
+	Id       uint            `gorm:"primaryKey;autoIncrement" json:"id"`
+	PrentId  uint            `gorm:"default:0;size:10" json:"parent_id"`
+	Name     string          `gorm:"size:50" json:"name"`
+	Alias    string          `gorm:"size:255" json:"alias"`
+	Thumb    string          `gorm:"size:255" json:"thumb"`
+	Keywords string          `gorm:"size:255" json:"keywords"`
+	Intro    string          `gorm:"size:255" json:"intro"`
+	Content  string          `json:"content"`
+	Sort     uint            `gorm:"default:0" json:"sort"`
+	Size     uint            `gorm:"default:10" json:"size"`
 	CreateAt carbon.DateTime `gorm:"type:datetime;default:CURRENT_TIMESTAMP" json:"create_at"`
 	UpdateAt carbon.DateTime `gorm:"type:datetime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" json:"update_at"`
 	State    uint            `gorm:"default:1" json:"state"`

@@ -1,9 +1,9 @@
-import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import path from "path";
 import postcssPxtorem from "postcss-pxtorem";
 import autoprefixer from "autoprefixer";
 import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "vite";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -43,5 +43,5 @@ export default defineConfig({
         }),
       ],
     },
-  },
+  }
 });

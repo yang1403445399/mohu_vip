@@ -65,6 +65,22 @@ const router = createRouter({
             },
           ],
         },
+        {
+          path: "column",
+          redirect: "/column/index",
+          children: [
+            {
+              path: "index",
+              name: "columnIndex",
+              component: () => import("@/views/column/Index.vue"),
+            },
+            {
+              path: "info",
+              name: "columnInfo",
+              component: () => import("@/views/column/Info.vue"),
+            },
+          ],
+        },
       ],
     },
   ],

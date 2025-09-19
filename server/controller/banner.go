@@ -4,6 +4,7 @@ import (
 	"example/server/config"
 	"example/server/model"
 	"example/server/types"
+	"example/server/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -13,6 +14,7 @@ func (con CommonController) BannerList(c *fiber.Ctx) error {
 	total := int64(0)
 	size := c.QueryInt("size", 10)
 	current := c.QueryInt("current", 1)
+	keyword := c.Query("keyword", "")
 
 	if size <= 0 || size > 100 {
 		size = 10
@@ -23,7 +25,7 @@ func (con CommonController) BannerList(c *fiber.Ctx) error {
 
 	offset := (current - 1) * size
 
-	if err := config.DB.Model(&model.Banner{}).Preload("Type").Order("id desc").Limit(size).Offset(offset).Find(&bannerData).Offset(-1).Limit(-1).Count(&total).Error; err != nil {
+	if err := config.DB.Model(&model.Banner{}).Preload("Type").Where("name like ?", "%"+keyword+"%").Order("id desc").Limit(size).Offset(offset).Find(&bannerData).Offset(-1).Limit(-1).Count(&total).Error; err != nil {
 		return con.ErrorResponse(c, err.Error())
 	}
 
@@ -32,6 +34,7 @@ func (con CommonController) BannerList(c *fiber.Ctx) error {
 		"total":   total,
 		"size":    size,
 		"current": current,
+		"keyword": keyword,
 	}, "获取成功")
 }
 
@@ -82,6 +85,8 @@ func (con CommonController) BannerSubmit(c *fiber.Ctx) error {
 		TypeId: bannerBody.TypeId,
 		Name:   bannerBody.Name,
 		Src:    bannerBody.Src,
+		Url:    utils.GetDefaultBodyString(bannerBody.Url, ""),
+		Sort:   utils.GetDefaultBodyUint(bannerBody.Sort, 0),
 	}
 
 	if err := config.DB.Create(&bannerData).Error; err != nil {
@@ -92,6 +97,20 @@ func (con CommonController) BannerSubmit(c *fiber.Ctx) error {
 }
 
 func (con CommonController) BannerDelete(c *fiber.Ctx) error {
+	bannerBody := []uint{}
+
+	if err := c.BodyParser(&bannerBody); err != nil {
+		return con.ErrorResponse(c, err.Error())
+	}
+
+	if len(bannerBody) == 0 {
+		return con.ErrorResponse(c, "请选择要删除的banner")
+	}
+
+	if err := config.DB.Delete(&model.Banner{}, bannerBody).Error; err != nil {
+		return con.ErrorResponse(c, err.Error())
+	}
+
 	return con.SuccessResponse(c, nil, "删除成功")
 }
 

@@ -11,6 +11,7 @@ interface BannerInfoParams {
 interface BannerData {
   id?: number;
   type_id: number;
+  type?: BannerTypeData;
   name: string;
   src: string;
   url?: string;

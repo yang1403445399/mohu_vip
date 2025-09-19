@@ -91,4 +91,5 @@ type BannerBody struct {
 	Src    string  `json:"src"`
 	Url    *string `json:"url"`
 	Sort   *uint   `json:"sort"`
+	State  *uint   `json:"state"`
 }

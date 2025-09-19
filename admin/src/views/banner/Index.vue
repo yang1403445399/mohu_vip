@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import { onMounted, reactive } from "vue";
-import { useRouter } from "vue-router";
-import { ElMessage, ElMessageBox } from "element-plus";
-import { reqBannerList } from "@/api/banner";
 import printJS from "print-js";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { Picture, Search } from "@element-plus/icons-vue";
+import { cloneDeep, debounce } from "lodash";
+import { onMounted, reactive } from "vue";
+import { useRouter } from "vue-router";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { reqBannerList, reqBannerDelete, reqBannerSubmit } from "@/api/banner";
 import type { ResponseData, PaginationData } from "@/types/common";
 import type { BannerData } from "@/types/banner";
 
 const router = useRouter();
-
-const bannerListData = reactive({
+const bannerTableData = reactive({
   load: true,
   data: {
     keyword: "",
@@ -21,32 +20,111 @@ const bannerListData = reactive({
     size: 10,
     list: [],
   } as PaginationData<BannerData[]>,
+  checked: [] as BannerData[],
+  preview: [] as string[],
 });
 
 const getBannerList = async () => {
   const response: ResponseData<PaginationData<BannerData[]>> =
     await reqBannerList({
-      current: bannerListData.data.current,
-      size: bannerListData.data.size,
+      keyword: bannerTableData.data.keyword,
+      current: bannerTableData.data.current,
+      size: bannerTableData.data.size,
     });
   if (response.code === 200) {
-    bannerListData.data = response.data!;
+    bannerTableData.preview = response.data!.list.map((item) => item.src);
+    bannerTableData.data = response.data!;
   }
-  bannerListData.load = false;
+  bannerTableData.load = false;
 };
 
 const onBannerCurrentChange = async () => {
-  bannerListData.load = true;
+  bannerTableData.load = true;
   await getBannerList();
 };
 
 const onBannerSizeChange = async () => {
-  bannerListData.load = true;
-  bannerListData.data.current = 1;
+  bannerTableData.load = true;
+  bannerTableData.data.current = 1;
   await getBannerList();
 };
 
-const onBannerTablePrint = () => {
+const onBannerChecked = (row?: BannerData[]) => {
+  if (row) {
+    bannerTableData.checked = row;
+  }
+};
+
+const onBannerAdd = () => {
+  router.push({
+    name: "bannerInfo",
+  });
+};
+
+const onBannerDelete = (row: BannerData[]) => {
+  ElMessageBox.confirm("是否确认删除？删除后将无法恢复！", "提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+  }).then(async () => {
+    try {
+      const response: ResponseData = await reqBannerDelete(
+        row.map((item) => item.id!)
+      );
+      if (response.code === 200) {
+        ElMessage({
+          message: response.msg,
+          type: "success",
+          onClose: async () => {
+            bannerTableData.checked = [];
+            await getBannerList();
+          },
+        });
+      }
+    } catch (error: any) {
+      ElMessage({
+        message: error.message,
+        type: "error",
+      });
+    }
+  });
+};
+
+const onBannerSearch = debounce(async () => {
+  bannerTableData.load = true;
+  bannerTableData.data.current = 1;
+  await getBannerList();
+}, 500);
+
+const onBannerEdit = (row: BannerData) => {
+  router.push({
+    name: "bannerInfo",
+    query: {
+      id: row.id,
+    },
+  });
+};
+
+const onBannerStateChange = async (row: BannerData) => {
+  try {
+    let postData = cloneDeep(row);
+    delete postData.type;
+    const response: ResponseData = await reqBannerSubmit(postData);
+    if (response.code === 200) {
+      ElMessage({
+        message: response.msg,
+        type: "success",
+      });
+    }
+  } catch (error: any) {
+    ElMessage({
+      message: error.message,
+      type: "error",
+    });
+  }
+};
+
+const onBannerPrint = () => {
   printJS({
     printable: "print-table",
     type: "html",
@@ -58,9 +136,9 @@ const onBannerTablePrint = () => {
   });
 };
 
-const onBannerTableExport = () => {
+const onBannerExport = () => {
   // 准备导出数据
-  const exportData = bannerListData.data.list.map((item) => ({
+  const exportData = bannerTableData.data.list.map((item) => ({
     ID: item.id,
     名称: item.name,
     图片: item.src,
@@ -89,32 +167,7 @@ const onBannerTableExport = () => {
   });
 };
 
-const onBannerAdd = () => {
-  router.push({
-    name: "bannerInfo",
-  });
-};
-
-const onBannerEdit = (row: BannerData) => {
-  router.push({
-    name: "bannerInfo",
-    query: {
-      id: row.id,
-    },
-  });
-};
-
-const onBannerDelete = (row: BannerData) => {
-  ElMessageBox.confirm("是否确认删除？删除后将无法恢复！", "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning",
-  }).then(async () => {
-    console.log("删除轮播图", row);
-  });
-};
-
-const loadPageData = async () => {
+const onInit = async () => {
   try {
     await getBannerList();
   } catch (error: any) {
@@ -126,7 +179,7 @@ const loadPageData = async () => {
 };
 
 onMounted(async () => {
-  await loadPageData();
+  await onInit();
 });
 </script>
 
@@ -140,12 +193,12 @@ onMounted(async () => {
       </div>
       <div class="flex">
         <el-tooltip content="打印">
-          <div class="ml-4 flex cursor-pointer" @click="onBannerTablePrint()">
+          <div class="ml-4 flex cursor-pointer" @click="onBannerPrint()">
             <el-icon><Printer /></el-icon>
           </div>
         </el-tooltip>
         <el-tooltip content="下载">
-          <div class="ml-4 flex cursor-pointer" @click="onBannerTableExport()">
+          <div class="ml-4 flex cursor-pointer" @click="onBannerExport()">
             <el-icon><Download /></el-icon>
           </div>
         </el-tooltip>
@@ -154,48 +207,58 @@ onMounted(async () => {
     <div
       class="flex items-center justify-between px-4 py-4 border-t border-[var(--el-border-color)]"
     >
-      <div class="flex w-70">
-        <el-input
-          :prefix-icon="Search"
-          v-model="bannerListData.data.keyword"
-          placeholder="请输入关键词搜索"
-        />
+      <div class="flex">
+        <div class="w-60">
+          <el-input
+            v-model="bannerTableData.data.keyword"
+            placeholder="请输入关键词搜索"
+            @input="onBannerSearch()"
+          />
+        </div>
+        <div class="ml-3">
+          <el-button type="primary" plain @click="onBannerSearch()"
+            >搜索</el-button
+          >
+        </div>
       </div>
       <div class="flex">
         <el-button type="primary" plain @click="onBannerAdd()">新增</el-button>
-        <el-button type="danger" plain>删除</el-button>
+        <el-button
+          type="danger"
+          plain
+          @click="onBannerDelete(bannerTableData.checked)"
+          >删除</el-button
+        >
       </div>
     </div>
     <div id="print-table">
       <el-table
         class="w-full"
         row-key="id"
-        v-loading="bannerListData.load"
-        :data="bannerListData.data.list"
+        v-loading="bannerTableData.load"
+        :data="bannerTableData.data.list"
+        @selection-change="onBannerChecked"
       >
         <el-table-column type="selection" width="50" />
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="name" label="名称" show-overflow-tooltip />
         <el-table-column prop="src" label="图片">
           <template #default="scope">
-            <el-popover
-              :width="344"
-              trigger="hover"
-              placement="right"
-              v-if="scope.row.src && scope.row.src.length > 0"
-            >
-              <template #reference>
-                <el-button :icon="Picture" type="primary" circle />
-              </template>
-              <el-image
-                class="w-80 h-40 block!"
-                :src="scope.row.src"
-                fit="cover"
-              />
-            </el-popover>
+            <el-image
+              class="w-8 h-8 block!"
+              preview-teleported
+              :src="scope.row.src"
+              :preview-src-list="bannerTableData.preview"
+              :zoom-rate="1.2"
+              :max-scale="7"
+              :min-scale="0.2"
+              :z-index="100"
+              :initial-index="scope.$index"
+              fit="cover"
+            />
           </template>
         </el-table-column>
-        <el-table-column prop="url" label="链接" />
+        <el-table-column prop="url" label="链接" show-overflow-tooltip />
         <el-table-column prop="type.name" label="类型">
           <template #default="scope">
             <el-tag :type="scope.row.type_id === 1 ? `primary` : `success`">{{
@@ -212,6 +275,7 @@ onMounted(async () => {
               v-model="scope.row.state"
               :active-value="1"
               :inactive-value="0"
+              @change="onBannerStateChange(scope.row)"
             />
           </template>
         </el-table-column>
@@ -221,9 +285,9 @@ onMounted(async () => {
               type="primary"
               class="mr-3"
               @click="onBannerEdit(scope.row)"
-              >修改</el-link
+              >编辑</el-link
             >
-            <el-link type="danger" @click="onBannerDelete(scope.row)"
+            <el-link type="danger" @click="onBannerDelete([scope.row])"
               >删除</el-link
             >
           </template>
@@ -235,10 +299,10 @@ onMounted(async () => {
         small
         background
         layout="total, sizes, prev, pager, next, jumper"
-        v-model:current-page="bannerListData.data.current"
-        v-model:page-size="bannerListData.data.size"
+        v-model:current-page="bannerTableData.data.current"
+        v-model:page-size="bannerTableData.data.size"
         :page-sizes="[10, 20, 40, 80]"
-        :total="bannerListData.data.total"
+        :total="bannerTableData.data.total"
         @current-change="onBannerCurrentChange"
         @size-change="onBannerSizeChange"
       />

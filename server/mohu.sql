@@ -2,7 +2,7 @@
 -- 主机:                           127.0.0.1
 -- 服务器版本:                        9.1.0 - MySQL Community Server - GPL
 -- 服务器操作系统:                      Win64
--- HeidiSQL 版本:                  12.11.0.7065
+-- HeidiSQL 版本:                  12.11.0.7094
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -23,7 +23,7 @@ USE `mohu_vip`;
 CREATE TABLE IF NOT EXISTS `tp_article` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int unsigned NOT NULL COMMENT '用户ID',
-  `cate_id` int unsigned NOT NULL COMMENT '栏目ID',
+  `column_id` int unsigned NOT NULL COMMENT '栏目ID',
   `title` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '标题',
   `keywords` varchar(255) DEFAULT NULL COMMENT '关键词',
   `intro` varchar(255) DEFAULT NULL COMMENT '描述',
@@ -41,16 +41,11 @@ CREATE TABLE IF NOT EXISTS `tp_article` (
   `state` int unsigned NOT NULL DEFAULT '1' COMMENT '状态',
   PRIMARY KEY (`id`),
   KEY `FK_tp_article_tp_user` (`user_id`) USING BTREE,
-  KEY `FK_tp_article_tp_column` (`cate_id`) USING BTREE,
-  CONSTRAINT `FK_tp_article_tp_cate` FOREIGN KEY (`cate_id`) REFERENCES `tp_cate` (`id`),
+  KEY `FK_tp_article_tp_column` (`column_id`) USING BTREE,
   CONSTRAINT `FK_tp_article_tp_user` FOREIGN KEY (`user_id`) REFERENCES `tp_user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='文章';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='文章';
 
--- 正在导出表  mohu_vip.tp_article 的数据：~3 rows (大约)
-INSERT INTO `tp_article` (`id`, `user_id`, `cate_id`, `title`, `keywords`, `intro`, `thumb`, `author`, `source`, `content`, `hits`, `hot`, `top`, `sort`, `uuid`, `update_at`, `create_at`, `state`) VALUES
-	(1, 1, 8, '阿松大阿松大啊', '阿松大阿三的', '撒旦阿三', '452452', '阿松大', '阿松大啊', '啊实打实大', 0, 0, 0, 0, 'bf87435a-a336-4dd9-83c0-2bc07abc6aca', '2024-11-05 10:02:26', '2024-11-05 10:02:27', 1),
-	(2, 1, 8, '阿松大阿松大啊', '阿松大阿三的', '撒旦阿三', '452452', '阿松大', '阿松大啊', '啊实打实大', 0, 0, 0, 0, 'bf87435a-a336-4dd9-83c0-2bc07abc6aca', '2025-07-05 10:02:26', '2025-07-05 10:02:27', 1),
-	(3, 1, 8, '阿松大阿松大啊', '阿松大阿三的', '撒旦阿三', '452452', '阿松大', '阿松大啊', '啊实打实大', 0, 0, 0, 0, 'bf87435a-a336-4dd9-83c0-2bc07abc6aca', '2025-09-05 10:02:26', '2025-09-05 10:02:27', 1);
+-- 正在导出表  mohu_vip.tp_article 的数据：~0 rows (大约)
 
 -- 导出  表 mohu_vip.tp_banner 结构
 CREATE TABLE IF NOT EXISTS `tp_banner` (
@@ -58,21 +53,18 @@ CREATE TABLE IF NOT EXISTS `tp_banner` (
   `type_id` int unsigned NOT NULL COMMENT '类型',
   `name` char(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '名称',
   `src` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '图片',
-  `url` varchar(255) DEFAULT NULL COMMENT '链接',
+  `url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '链接',
   `sort` int unsigned NOT NULL DEFAULT '0' COMMENT '排序',
   `update_at` datetime NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `create_at` datetime NOT NULL DEFAULT (now()) COMMENT '创建时间',
   `state` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '状态',
   PRIMARY KEY (`id`),
   KEY `type_id` (`type_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='轮播图';
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='轮播图';
 
--- 正在导出表  mohu_vip.tp_banner 的数据：~4 rows (大约)
+-- 正在导出表  mohu_vip.tp_banner 的数据：~0 rows (大约)
 INSERT INTO `tp_banner` (`id`, `type_id`, `name`, `src`, `url`, `sort`, `update_at`, `create_at`, `state`) VALUES
-	(1, 1, '1111', 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg', '1111', 0, '2025-09-14 18:18:45', '2025-09-12 14:56:05', 1),
-	(2, 1, '4444', 'http://127.0.0.1:3000/uploads/20250911/1757562278_企业微信截图_20250910103207 - 副本 (2).png', '2222', 0, '2025-09-14 18:18:53', '2025-09-14 17:54:30', 1),
-	(3, 1, '3333', 'http://127.0.0.1:3000/uploads/20250912/1757644283_企业微信截图_20250912103046.png', '3333', 0, '2025-09-14 18:19:00', '2025-09-14 17:55:22', 1),
-	(4, 2, '2222', 'http://127.0.0.1:3000/uploads/20250911/1757562240_1 - 副本.jpg', '4444', 0, '2025-09-14 18:19:07', '2025-09-14 18:03:20', 1);
+	(10, 1, '1111', 'http://127.0.0.1:3000/uploads/20250911/1757562240_1 - 副本.jpg', ' dsf dsf ', 0, '2025-09-16 14:06:29', '2025-09-15 14:29:00', 1);
 
 -- 导出  表 mohu_vip.tp_banner_type 结构
 CREATE TABLE IF NOT EXISTS `tp_banner_type` (
@@ -93,7 +85,7 @@ INSERT INTO `tp_banner_type` (`id`, `name`, `create_at`, `update_at`, `state`) V
 CREATE TABLE IF NOT EXISTS `tp_basic` (
   `site` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `label` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `value` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `value` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   UNIQUE KEY `label` (`label`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='基本信息';
 
@@ -103,13 +95,13 @@ INSERT INTO `tp_basic` (`site`, `label`, `value`) VALUES
 	('site', 'site_cellphone', ''),
 	('site', 'site_copyright', ''),
 	('site', 'site_email', ''),
-	('site', 'site_ewm', 'http://127.0.0.1:3000/uploads/20250911/1757562278_企业微信截图_20250910103207 - 副本.png'),
+	('site', 'site_ewm', 'http://127.0.0.1:3000/uploads/20250911/1757562240_1 - 副本 (2).jpg'),
 	('site', 'site_icp', ''),
-	('site', 'site_intro', '444'),
+	('site', 'site_intro', '444sadas'),
 	('site', 'site_keywords', '33'),
-	('site', 'site_logo', 'http://127.0.0.1:3000/uploads/20250911/1757562278_企业微信截图_20250910103207 - 副本.png'),
+	('site', 'site_logo', 'http://127.0.0.1:3000/uploads/20250911/1757562240_1 - 副本 (2).jpg'),
 	('site', 'site_mode', '1'),
-	('site', 'site_name', '111'),
+	('site', 'site_name', '112222'),
 	('site', 'site_person', ''),
 	('site', 'site_script', ''),
 	('site', 'site_telephone', ''),
@@ -136,42 +128,26 @@ INSERT INTO `tp_browse` (`id`, `ip`, `province`, `city`, `update_at`, `create_at
 	(5, '111.178.57.181', '湖南省', '湘潭市', '2025-09-02 11:41:15', '2025-09-02 11:41:20', 1),
 	(6, '111.178.57.181', '湖南省', '湘潭市', '2025-09-02 11:41:15', '2025-09-02 11:41:20', 1);
 
--- 导出  表 mohu_vip.tp_cate 结构
-CREATE TABLE IF NOT EXISTS `tp_cate` (
+-- 导出  表 mohu_vip.tp_column 结构
+CREATE TABLE IF NOT EXISTS `tp_column` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int unsigned NOT NULL COMMENT '用户ID',
-  `pattern_id` int unsigned NOT NULL COMMENT '模板ID',
-  `parent_id` int unsigned NOT NULL COMMENT '父级ID',
-  `name` varchar(50) NOT NULL COMMENT '栏目名',
-  `alias` varchar(50) DEFAULT NULL COMMENT '别名',
-  `keywords` varchar(255) DEFAULT NULL COMMENT '关键词',
-  `intro` varchar(255) DEFAULT NULL COMMENT '描述',
-  `picture` varchar(255) DEFAULT NULL COMMENT '缩略图',
-  `content` text COMMENT '内容',
-  `level` int unsigned NOT NULL DEFAULT '0' COMMENT '层级',
+  `parent_id` int unsigned NOT NULL DEFAULT '0' COMMENT '上级',
+  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '名称',
+  `alias` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '别名',
+  `thumb` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '缩略图',
+  `keywords` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '关键词',
+  `intro` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '描述',
+  `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '内容',
   `sort` int unsigned NOT NULL DEFAULT '0' COMMENT '排序',
-  `size` int unsigned NOT NULL COMMENT '分页大小',
-  `uuid` varchar(50) NOT NULL,
-  `update_at` datetime NOT NULL COMMENT '更新时间',
-  `create_at` datetime NOT NULL COMMENT '创建时间',
-  `state` int unsigned NOT NULL COMMENT '状态',
+  `size` int unsigned NOT NULL DEFAULT '10' COMMENT '每页显示',
+  `update_at` datetime NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `create_at` datetime NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
+  `state` tinyint unsigned NOT NULL DEFAULT (1) COMMENT '状态',
   PRIMARY KEY (`id`),
-  KEY `FK_tp_column_tp_page` (`pattern_id`) USING BTREE,
-  KEY `FK_tp_column_tp_user` (`user_id`) USING BTREE,
-  CONSTRAINT `FK_tp_cate_tp_pattern` FOREIGN KEY (`pattern_id`) REFERENCES `tp_pattern` (`id`),
-  CONSTRAINT `FK_tp_cate_tp_user` FOREIGN KEY (`user_id`) REFERENCES `tp_user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='栏目';
+  KEY `parent_id` (`parent_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='栏目';
 
--- 正在导出表  mohu_vip.tp_cate 的数据：~8 rows (大约)
-INSERT INTO `tp_cate` (`id`, `user_id`, `pattern_id`, `parent_id`, `name`, `alias`, `keywords`, `intro`, `picture`, `content`, `level`, `sort`, `size`, `uuid`, `update_at`, `create_at`, `state`) VALUES
-	(1, 1, 2, 0, '开发工具', 'kaifagongju', '开发工具', '开发工具', '', '', 0, 0, 12, '5755cf91-5b3d-4f61-8be0-c73e5d52caa1', '2024-02-26 16:44:44', '2024-02-26 08:29:52', 1),
-	(2, 1, 2, 1, '前端开发', 'qianduankaifa', '前端开发', '前端开发', '', '', 1, 0, 12, '718f138b-810b-4e05-8e51-0099aec06ce1', '2024-03-05 14:00:58', '2024-02-26 08:38:58', 1),
-	(3, 1, 2, 1, '后端开发', 'houduankaifa', '后端开发', '后端开发', '', '', 1, 0, 12, '8c3c9ca4-a609-4123-9561-73f2ed9f98fc', '2024-02-26 11:13:49', '2024-02-26 11:13:49', 1),
-	(4, 1, 2, 1, 'CSS工具', 'cssgongju', 'CSS工具', 'CSS工具', '', '', 1, 0, 12, '4bd6827a-729e-4709-89c3-6b7035e126f0', '2024-02-26 11:14:41', '2024-02-26 11:14:07', 1),
-	(5, 1, 2, 1, 'UI灵感', 'uilinggan', 'UI灵感', 'UI灵感', '', '', 1, 0, 12, '044cc9c2-c637-465d-8f62-5630395a703e', '2024-02-26 11:15:08', '2024-02-26 11:15:08', 1),
-	(6, 1, 2, 1, '图片工具', 'tupiangongju', '图片工具', '图片工具', '', '', 1, 0, 12, 'cedc416e-ce85-4e80-aa03-cdd47e9107f4', '2024-02-26 11:15:30', '2024-02-26 11:15:30', 1),
-	(7, 1, 2, 1, 'GIT工具', 'gitgongju', 'GIT工具', 'GIT工具', '', '', 1, 0, 12, '04bf5ff5-767b-4948-9d44-678c8701ac1b', '2024-02-26 11:15:55', '2024-02-26 11:15:55', 1),
-	(8, 1, 2, 0, '开发笔记', 'kaifabiji', '开发笔记', '开发笔记', '', '', 0, 0, 12, '691cdcf3-7fe9-4c17-9aed-53ecfcd939f4', '2024-03-05 14:00:19', '2024-02-26 11:16:45', 1);
+-- 正在导出表  mohu_vip.tp_column 的数据：~0 rows (大约)
 
 -- 导出  表 mohu_vip.tp_file_type 结构
 CREATE TABLE IF NOT EXISTS `tp_file_type` (
@@ -179,7 +155,7 @@ CREATE TABLE IF NOT EXISTS `tp_file_type` (
   `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '名称',
   `update_at` datetime NOT NULL COMMENT '更新时间',
   `create_at` datetime NOT NULL COMMENT '创建时间',
-  `state` int unsigned NOT NULL DEFAULT '1' COMMENT '状态',
+  `state` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '状态',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='文件类型';
 
@@ -251,7 +227,7 @@ CREATE TABLE IF NOT EXISTS `tp_image_column` (
 
 -- 正在导出表  mohu_vip.tp_image_column 的数据：~2 rows (大约)
 INSERT INTO `tp_image_column` (`id`, `user_id`, `name`, `update_at`, `create_at`, `state`) VALUES
-	(1, 1, '风景1', '2025-09-14 17:20:40', '2025-09-14 17:14:34', 1),
+	(1, 1, '风景', '2025-09-16 14:25:26', '2025-09-14 17:14:34', 1),
 	(2, 1, '科技', '2025-09-14 17:14:47', '2025-09-14 17:14:47', 1);
 
 -- 导出  表 mohu_vip.tp_link 结构
@@ -279,8 +255,8 @@ CREATE TABLE IF NOT EXISTS `tp_log` (
   `user_id` int unsigned NOT NULL COMMENT '用户',
   `route` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '路由',
   `method` char(6) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '方法',
-  `params` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '参数',
-  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '备注',
+  `params` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '参数',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '备注',
   `update_at` datetime NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `create_at` datetime NOT NULL DEFAULT (now()) COMMENT '创建时间',
   `state` tinyint NOT NULL DEFAULT '1' COMMENT '状态',
@@ -313,9 +289,9 @@ INSERT INTO `tp_log` (`id`, `user_id`, `route`, `method`, `params`, `remark`, `u
 -- 导出  表 mohu_vip.tp_menu 结构
 CREATE TABLE IF NOT EXISTS `tp_menu` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `parent_id` int unsigned NOT NULL COMMENT '上级',
+  `parent_id` int unsigned NOT NULL DEFAULT '0' COMMENT '上级',
   `name` char(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '名称',
-  `icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '图标',
+  `icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '图标',
   `path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '路径',
   `update_at` datetime NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `create_at` datetime NOT NULL DEFAULT (now()) COMMENT '创建时间',
@@ -328,8 +304,8 @@ CREATE TABLE IF NOT EXISTS `tp_menu` (
 INSERT INTO `tp_menu` (`id`, `parent_id`, `name`, `icon`, `path`, `update_at`, `create_at`, `state`) VALUES
 	(1, 0, '网站概况', 'Monitor', '/home', '2025-09-09 09:54:49', '2025-09-09 09:54:53', 1),
 	(2, 0, '网站设置', 'Setting', '/setup', '2025-09-09 09:54:49', '2025-09-09 09:54:53', 1),
-	(3, 2, '基本设置', NULL, '/setup/basic', '2025-09-09 09:54:49', '2025-09-09 09:54:53', 1),
-	(4, 2, '轮播图', NULL, '/setup/banner', '2025-09-09 09:54:49', '2025-09-09 09:54:53', 1),
+	(3, 2, '基本设置', '', '/setup/basic', '2025-09-09 09:54:49', '2025-09-09 09:54:53', 1),
+	(4, 2, '轮播图', '', '/setup/banner', '2025-09-09 09:54:49', '2025-09-09 09:54:53', 1),
 	(5, 0, '栏目管理', 'CopyDocument', '/column', '2025-09-09 09:54:49', '2025-09-09 09:54:53', 1),
 	(6, 0, '文章管理', 'Document', '/article', '2025-09-09 09:54:49', '2025-09-09 09:54:53', 1),
 	(7, 0, '留言管理', 'ChatDotSquare', '/comment', '2025-09-09 09:54:49', '2025-09-09 09:54:53', 1),

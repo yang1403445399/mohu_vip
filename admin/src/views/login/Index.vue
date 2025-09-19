@@ -10,8 +10,8 @@ import type { UserLoginData, UserData } from "@/types/user";
 
 const router = useRouter();
 const loading = ref<boolean>(true);
+const isLogin = ref<boolean>(false);
 const tabsCurrent = ref<number>(1);
-const autoLogin = ref<boolean>(false);
 const formRef = ref<FormInstance>();
 const formData = reactive<UserLoginData>({
   username: "",
@@ -27,10 +27,17 @@ const formRule = reactive<FormRules<UserLoginData>>({
 });
 
 const onUserLoginVerify = async () => {
-  const response: ResponseData<UserData> = await reqUserLoginVerify();
-  if (response.code === 200) {
-    router.push({
-      name: "home",
+  try {
+    const response: ResponseData<UserData> = await reqUserLoginVerify();
+    if (response.code === 200) {
+      router.push({
+        name: "homeIndex",
+      });
+    }
+  } catch (error: any) {
+    ElMessage({
+      message: error.message,
+      type: "error",
     });
   }
 };
@@ -41,35 +48,32 @@ const onUserLoginSubmit = async (formEl: FormInstance | undefined) => {
   const valid = await formEl.validate();
 
   if (valid) {
-    const response: ResponseData<UserData> =
-      await reqUserLoginSubmit(formData);
-    if (response.code === 200) {
+    try {
+      const response: ResponseData<UserData> = await reqUserLoginSubmit(
+        formData
+      );
+      if (response.code === 200) {
+        ElMessage({
+          message: response.msg,
+          type: "success",
+          duration: 1500,
+          onClose: () => {
+            localStorage.setItem("token", response.data!.token!);
+            if (isLogin.value) {
+              localStorage.setItem("login", "yes");
+            }
+            router.push({
+              name: "homeIndex",
+            });
+          },
+        });
+      }
+    } catch (error: any) {
       ElMessage({
-        message: response.msg,
-        type: "success",
-        duration: 1500,
-        onClose: () => {
-          localStorage.setItem("token", response.data!.token!);
-          if (autoLogin.value) {
-            localStorage.setItem("login", "yes");
-          }
-          router.push({
-            name: "home",
-          });
-        },
+        message: error.message,
+        type: "error",
       });
     }
-  }
-};
-
-const loadPageData = async () => {
-  try {
-    await onUserLoginVerify();
-  } catch (error: any) {
-    ElMessage({
-      message: error.message,
-      type: "error",
-    });
   }
 };
 
@@ -77,8 +81,8 @@ onMounted(async () => {
   const login = localStorage.getItem("login");
 
   if (login === "yes") {
-    autoLogin.value = true;
-    await loadPageData();
+    isLogin.value = true;
+    await onUserLoginVerify();
   }
 
   loading.value = false;
@@ -138,7 +142,7 @@ onMounted(async () => {
           </el-form-item>
           <el-form-item>
             <div class="w-full flex justify-between items-center">
-              <el-checkbox v-model="autoLogin" label="自动登录" />
+              <el-checkbox v-model="isLogin" label="自动登录" />
               <el-link type="primary">忘记密码?</el-link>
             </div>
           </el-form-item>

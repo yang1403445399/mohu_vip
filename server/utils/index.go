@@ -10,7 +10,6 @@ import (
 
 var JWTSecret = "my-secret-key"
 
-// GenerateToken 生成JWT token
 func GenerateToken(userID uint) (string, error) {
 	// 设置token过期时间，这里设置为7天
 	expirationTime := time.Now().Add(7 * 24 * time.Hour)
@@ -34,7 +33,6 @@ func GenerateToken(userID uint) (string, error) {
 	return tokenString, nil
 }
 
-// ParseToken 解析JWT token
 func ParseToken(tokenString string) (*jwt.Token, *jwt.MapClaims, error) {
 	// 解析token
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
@@ -65,7 +63,6 @@ func ParseToken(tokenString string) (*jwt.Token, *jwt.MapClaims, error) {
 	return token, claimsPtr, nil
 }
 
-// RefreshToken 刷新JWT token
 func RefreshToken(tokenString string) (string, error) {
 	token, claims, err := ParseToken(tokenString)
 	if err != nil || !token.Valid {
@@ -88,4 +85,18 @@ func RefreshToken(tokenString string) (string, error) {
 	}
 
 	return "", errors.New("无效的token")
+}
+
+func GetDefaultBodyString(ptr *string, defaultValue string) string {
+	if ptr != nil {
+		return *ptr
+	}
+	return defaultValue
+}
+
+func GetDefaultBodyUint(ptr *uint, defaultValue uint) uint {
+	if ptr != nil {
+		return *ptr
+	}
+	return defaultValue
 }

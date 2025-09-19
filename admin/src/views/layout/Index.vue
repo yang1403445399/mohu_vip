@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
+import { reactive, watch, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useDark, useToggle } from "@vueuse/core";
 import { Moon, Sunny } from "@element-plus/icons-vue";
@@ -10,45 +10,22 @@ import type { MenuData, MenuTreeData } from "@/types/menu";
 const route = useRoute();
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
-const menuData = ref<MenuTreeData[]>([]);
-const breadcrumbData = ref<MenuData[]>([]);
+const menuData = reactive({
+  list: [] as MenuData[],
+  tree: [] as MenuTreeData[],
+  breadcrumb: [] as MenuData[],
+});
 
-// 简洁优雅的面包屑查找方法
-const findBreadcrumb = (items: MenuTreeData[], currentPath: string) => {
-  // 重置面包屑数据
-  breadcrumbData.value.length = 0;
-
-  // 内部递归函数，专注于路径查找逻辑
-  const findPath = (
-    menus: MenuTreeData[],
-    targetPath: string,
-    parentChain: MenuData[] = []
-  ): boolean => {
-    for (const menu of menus) {
-      const fullPath = `${menu.path}/${route.path.split(`/`).pop()}`;
-
-      // 找到匹配路径时，构建完整面包屑链
-      if (fullPath === targetPath) {
-        // 添加父菜单链和当前菜单
-        breadcrumbData.value = [...parentChain, menu];
-        return true;
-      }
-
-      // 有子菜单时递归查找，并传递当前菜单作为父链
-      if (menu.children?.length) {
-        if (findPath(menu.children, targetPath, [...parentChain, menu])) {
-          return true;
-        }
-      }
-    }
-    return false;
-  };
-
-  // 开始查找
-  findPath(items, currentPath);
+const getMenuList = async () => {
+  const response: ResponseData<MenuData[]> = await reqMenuList();
+  if (response.code === 200) {
+    menuData.list = response.data!;
+    menuData.tree = buildNavigationMenuTree(response.data!);
+    findBreadcrumbItems(menuData.list, route.path);
+  }
 };
 
-const arrayToTree = (data: MenuData[]): MenuTreeData[] => {
+const buildNavigationMenuTree = (data: MenuData[]): MenuTreeData[] => {
   const menuTree: MenuTreeData[] = [];
   const menuMap = new Map<number, MenuTreeData>();
 
@@ -75,11 +52,26 @@ const arrayToTree = (data: MenuData[]): MenuTreeData[] => {
   return menuTree;
 };
 
-const getMenuList = async () => {
-  const response: ResponseData<MenuData[]> = await reqMenuList();
-  if (response.code === 200) {
-    menuData.value = arrayToTree(response.data!);
-    findBreadcrumb(menuData.value, route.path);
+const findBreadcrumbItems = (items: MenuData[], currentPath: string) => {
+  menuData.breadcrumb = [];
+
+  const currentItem = items.find(
+    (item) => `${item.path}/${route.path.split(`/`).pop()}` === currentPath
+  );
+
+  if (currentItem) {
+    menuData.breadcrumb.push(currentItem);
+
+    let parentId = currentItem.parent_id;
+    while (parentId !== 0) {
+      const parentItem = items.find((item) => item.id === parentId);
+      if (parentItem) {
+        menuData.breadcrumb.unshift(parentItem);
+        parentId = parentItem.parent_id;
+      } else {
+        break;
+      }
+    }
   }
 };
 
@@ -87,14 +79,18 @@ const getRealPath = () => {
   return route.path.split("/").slice(0, -1).join("/");
 };
 
-onMounted(async () => {
+const onInit = async () => {
   await getMenuList();
+};
+
+onMounted(async () => {
+  await onInit();
 });
 
 watch(
   () => route.path,
   (path) => {
-    findBreadcrumb(menuData.value, path);
+    findBreadcrumbItems(menuData.list, path);
   }
 );
 </script>
@@ -149,7 +145,7 @@ watch(
           class="!border-none"
           router
         >
-          <template v-for="value in menuData" :key="value.id">
+          <template v-for="value in menuData.tree" :key="value.id">
             <el-menu-item
               :index="value.path"
               v-if="value.children!.length === 0"
@@ -181,7 +177,7 @@ watch(
                 ><el-icon><House /></el-icon
               ></el-breadcrumb-item>
               <el-breadcrumb-item
-                v-for="value in breadcrumbData"
+                v-for="value in menuData.breadcrumb"
                 :key="value.id"
                 :to="{ path: value.path }"
                 >{{ value.name }}</el-breadcrumb-item
